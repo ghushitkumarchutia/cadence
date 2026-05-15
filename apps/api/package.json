@@ -26,6 +26,7 @@
     "@sinclair/typebox": "^0.34.49",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.76.8",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.44.7",
     "fastify": "^5.8.5",
     "ioredis": "^5.10.1",
