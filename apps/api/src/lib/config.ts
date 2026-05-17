@@ -17,10 +17,12 @@ export const config = {
   },
 
   auth: {
-    jwtSecret: process.env.JWT_SECRET || "change-this-to-a-256-bit-random-secret-in-production",
+    jwtSecret:
+      process.env.JWT_SECRET ||
+      "263f9cdf204809fdcd881fcc3048f48c082ff68e221b1d9cf5243d440979e4e58ecd25ada7a030419a5ea8ffb2b85e1a7d743d8c8eb173497fd2a926b406aef2",
     refreshTokenSecret:
       process.env.REFRESH_TOKEN_SECRET ||
-      "change-this-to-a-different-256-bit-random-secret",
+      "8788c960422c59039dbc6c2f74ad1bcdcb5fba069523518b650971ea58426b8a4405faece6dcd7c00f043401cc6d2f3610477fe00020035addf8d62fd3161a0a",
   },
 
   intelligence: {
