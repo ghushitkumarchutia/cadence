@@ -12,7 +12,10 @@ declare module "@fastify/jwt" {
 
 declare module "fastify" {
   interface FastifyInstance {
-    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    authenticate: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ) => Promise<void>;
   }
 }
 
@@ -22,15 +25,18 @@ export default fp(async (app: FastifyInstance) => {
     sign: { expiresIn: "15m" },
   });
 
-  app.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      await request.jwtVerify();
-    } catch {
-      return reply.status(401).send({
-        error: "Unauthorized",
-        code: "UNAUTHORIZED",
-        statusCode: 401,
-      });
-    }
-  });
+  app.decorate(
+    "authenticate",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        await request.jwtVerify();
+      } catch {
+        return reply.status(401).send({
+          error: "Unauthorized",
+          code: "UNAUTHORIZED",
+          statusCode: 401,
+        });
+      }
+    },
+  );
 });
