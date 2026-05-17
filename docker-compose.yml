@@ -27,5 +27,84 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://cadence:devpassword@postgres:5432/cadence_dev
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: change-this-to-a-256-bit-random-secret-in-production
+      REFRESH_TOKEN_SECRET: change-this-to-a-different-256-bit-random-secret
+      NODE_ENV: production
+      PORT: "3001"
+      LOG_LEVEL: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  intelligence:
+    build:
+      context: ./apps/intelligence
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://cadence:devpassword@postgres:5432/cadence_dev
+      DATABASE_HOST: postgres
+      DATABASE_USER: cadence
+      DATABASE_PASSWORD: devpassword
+      DATABASE_NAME: cadence_dev
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://redis:6379
+      CORS_ORIGINS: "*"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    restart: unless-stopped
+
+  intelligence-worker:
+    build:
+      context: ./apps/intelligence
+      dockerfile: Dockerfile
+    command: ["python", "-m", "app.workers.stream_worker"]
+    environment:
+      DATABASE_URL: postgresql://cadence:devpassword@postgres:5432/cadence_dev
+      DATABASE_HOST: postgres
+      DATABASE_USER: cadence
+      DATABASE_PASSWORD: devpassword
+      DATABASE_NAME: cadence_dev
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   pgdata:
